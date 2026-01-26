@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的代码实验室</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
   <script src="three.r134.min.js"></script>
 <script src="vanta.birds.min.js"></script>
@@ -73,6 +75,23 @@ VANTA.BIRDS({
             <p>© 2024 由 GitHub Pages 强力驱动</p>
         </div>
     </div>
-
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    VANTA.BIRDS({
+        el: "body", // 绑定到 body，背景全屏
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: 1.00,
+        scaleMobile: 1.00,
+        // 自定义颜色，配合你的深色主题
+        backgroundColor: 0x0d1117, // 匹配 GitHub 深色背景
+        color1: 0x58a6ff,
+        color2: 0xbc8cff
+    })
+})
+</script>
 </body>
 </html>
