@@ -1,257 +1,223 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShanlinBawang | Code Lab</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShanlinBawang | Code Lab</title>
 
-    <style>
-        :root {
-            --gh-blue: #58a6ff;
-            --gh-purple: #bc8cff;
-        }
+<!-- libs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
-        body { 
-            background-color: #0d1117; 
-            color: #c9d1d9; 
-            font-family: 'Inter', -apple-system, system-ui, sans-serif; 
-            margin: 0;
-            overflow-x: hidden;
-            cursor: crosshair;
-        }
+<style>
+:root {
+    --blue:#58a6ff;
+    --purple:#bc8cff;
+}
 
-        /* 霓虹背景光晕 */
-        .glow {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(88, 166, 255, 0.15) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
-        }
+body {
+    background:#0d1117;
+    color:#c9d1d9;
+    font-family: Inter,system-ui,sans-serif;
+    margin:0;
+    overflow-x:hidden;
+    cursor:none;
+}
 
-        .gradient-text {
-            background: linear-gradient(90deg, var(--gh-blue), var(--gh-purple), var(--gh-blue));
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradient-flow 3s linear infinite;
-        }
-        @keyframes gradient-flow {
-            to { background-position: 200% center; }
-        }
+/* ===== 鼠标能量光标 ===== */
+.cursor-glow {
+    position:fixed;
+    width:140px;
+    height:140px;
+    border-radius:50%;
+    pointer-events:none;
+    background:radial-gradient(circle,
+        rgba(88,166,255,.25),
+        rgba(188,140,255,.15),
+        transparent 70%);
+    transform:translate(-50%,-50%);
+    z-index:0;
+}
 
-        .glass-card { 
-            background: rgba(22, 27, 34, 0.7); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative;
-            z-index: 1;
-        }
-        .glass-card:hover { 
-            transform: translateY(-8px); 
-            border-color: var(--gh-blue);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(88, 166, 255, 0.1);
-        }
+/* ===== 标题呼吸 ===== */
+.logo {
+    background:linear-gradient(90deg,var(--blue),var(--purple),var(--blue));
+    background-size:200%;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:flow 3s linear infinite,pulse 3s ease-in-out infinite;
+}
+@keyframes flow { to {background-position:200%} }
+@keyframes pulse {
+    50% {
+        text-shadow:
+            0 0 20px rgba(88,166,255,.6),
+            0 0 50px rgba(188,140,255,.5);
+    }
+}
 
-        /* 解决图片加载不出的 CSS 占位方案 */
-        .stats-img {
-            min-height: 195px;
-            width: 100%;
-            background: rgba(13, 17, 23, 0.6);
-            display: block;
-            position: relative;
-        }
-        .stats-img::after {
-            content: "📊 Data Syncing from GitHub...";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.8rem;
-            color: #444;
-            z-index: -1;
-        }
+/* ===== 玻璃卡片 ===== */
+.glass {
+    background:rgba(22,27,34,.75);
+    backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+    transition:.4s cubic-bezier(.175,.885,.32,1.275);
+    transform-style:preserve-3d;
+}
+.glass:hover {
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.6),
+        0 0 30px rgba(88,166,255,.2);
+}
 
-        .skill-badge {
-            transition: all 0.3s ease;
-            filter: brightness(0.8) grayscale(0.2);
-        }
-        .skill-badge:hover {
-            filter: brightness(1.1) grayscale(0);
-            transform: translateY(-3px);
-        }
+/* ===== GitHub 图像占位 ===== */
+.stats-img {
+    min-height:190px;
+    width:100%;
+    background:#0d1117;
+}
 
-        .firework {
-            position: absolute;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-        }
-    </style>
+/* ===== 技能徽章 ===== */
+.skill {
+    filter:grayscale(.3) brightness(.8);
+    transition:.3s;
+}
+.skill:hover {
+    filter:none;
+    transform:translateY(-4px) scale(1.05);
+}
+
+/* ===== 点击粒子 ===== */
+.particle {
+    position:fixed;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:9999;
+}
+</style>
 </head>
-<body class="min-h-screen">
-    <div class="glow" style="top: 10%; left: 5%;"></div>
-    <div class="glow" style="bottom: 10%; right: 5%;"></div>
 
-    <div class="max-w-5xl mx-auto px-6 py-12 relative z-10">
-        <header class="text-center mb-16 animate__animated animate__fadeIn">
-            <h1 class="text-5xl md:text-7xl font-black mb-6 gradient-text tracking-tighter">ShanlinBawang</h1>
-            <div class="inline-block px-6 py-2 rounded-full border border-blue-500/20 bg-blue-500/5 mb-6 shadow-inner">
-                <p id="typewriter" class="text-blue-300 font-mono text-lg"></p>
-            </div>
-            <p id="hitokoto" class="text-gray-400 italic text-sm opacity-80 max-w-2xl mx-auto min-h-[1.5em]"></p>
-        </header>
+<body>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 animate__animated animate__fadeInUp">
-            <div class="glass-card p-2">
-                <img class="stats-img rounded-lg" 
-                     src="https://github-readme-stats-eight-theta.vercel.app/api?username=shanlinbawang&show_icons=true&theme=tokyonight&hide_border=true&count_private=true&cache_seconds=1800" 
-                     alt="GitHub Stats" />
-            </div>
-            <div class="glass-card p-2">
-                <img class="stats-img rounded-lg" 
-                     src="https://github-readme-stats-eight-theta.vercel.app/api/top-langs/?username=shanlinbawang&layout=compact&theme=tokyonight&hide_border=true&cache_seconds=1800" 
-                     alt="Top Languages" />
-            </div>
-        </section>
+<div class="cursor-glow"></div>
 
-        <div class="mb-16">
-            <h2 class="text-xl font-bold text-white mb-6 flex items-center">
-                <span class="w-2 h-6 bg-blue-500 mr-3 rounded-full"></span> Stack
-            </h2>
-            <div class="flex flex-wrap gap-3">
-                <img class="skill-badge h-9" src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-                <img class="skill-badge h-9" src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
-                <img class="skill-badge h-9" src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
-                <img class="skill-badge h-9" src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" />
-                <img class="skill-badge h-9" src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
-                <img class="skill-badge h-9" src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" />
-            </div>
-        </div>
+<div class="max-w-5xl mx-auto px-6 py-16 relative z-10">
 
-        <h2 class="text-xl font-bold text-white mb-8 flex items-center">
-            <span class="w-2 h-6 bg-purple-500 mr-3 rounded-full"></span> Projects
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <a href="https://github.com/shanlinbawang/sublink-worker" target="_blank" class="glass-card p-6 block group">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-blue-400 font-bold tracking-widest">SUBLINK</h3>
-                    <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-all">
-                        <span class="text-blue-400">🔗</span>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-400 mb-6 leading-relaxed">基于 CF Worker 的轻量级订阅转换与管理工具。</p>
-                <div class="flex items-center text-xs font-mono text-gray-500">
-                    <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2 animate-pulse"></span> JavaScript
-                </div>
-            </a>
+<header class="text-center mb-20 animate__animated animate__fadeIn">
+    <h1 class="text-6xl md:text-7xl font-black mb-6 logo">ShanlinBawang</h1>
+    <p class="text-blue-300 font-mono text-lg mb-4">
+        const life = code + freedom;
+    </p>
+    <p id="hitokoto" class="text-gray-400 italic text-sm"></p>
+</header>
 
-            <a href="https://github.com/shanlinbawang/MoonTV" target="_blank" class="glass-card p-6 block group">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-purple-400 font-bold tracking-widest">MOON TV</h3>
-                    <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-all">
-                        <span class="text-purple-400">📺</span>
-                    </div>
-                </div>
-                <p class="text-sm text-gray-400 mb-6 leading-relaxed">开源电视直播解决方案，探索大屏视觉体验。</p>
-                <div class="flex items-center text-xs font-mono text-gray-500">
-                    <span class="w-2 h-2 rounded-full bg-blue-500 mr-2 animate-pulse"></span> Python
-                </div>
-            </a>
-
-            <div class="glass-card p-6 border-dashed border-gray-700 flex flex-col justify-center items-center opacity-60">
-                <span class="text-2xl mb-2">💎</span>
-                <h3 class="text-gray-500 font-bold uppercase text-xs">More Coming Soon</h3>
-            </div>
-        </div>
-
-        <footer class="mt-24 pb-8 text-center border-t border-gray-800/50 pt-12">
-            <p class="text-gray-600 text-xs tracking-widest uppercase">
-                Powered by GitHub Pages & Vanta.js | © 2026 ShanlinBawang
-            </p>
-        </footer>
+<section class="grid md:grid-cols-2 gap-8 mb-20">
+    <div class="glass p-2">
+        <img class="stats-img rounded-lg"
+        src="https://github-readme-stats-eight-theta.vercel.app/api?username=shanlinbawang&show_icons=true&theme=tokyonight&hide_border=true&count_private=true"/>
     </div>
+    <div class="glass p-2">
+        <img class="stats-img rounded-lg"
+        src="https://github-readme-stats-eight-theta.vercel.app/api/top-langs/?username=shanlinbawang&layout=compact&theme=tokyonight&hide_border=true"/>
+    </div>
+</section>
 
-    <script>
-        // 1. 打字机
-        const textToType = "Executing dreams.sh ...";
-        let typeIndex = 0;
-        function typeWriter() {
-            const el = document.getElementById("typewriter");
-            if (typeIndex < textToType.length) {
-                el.innerHTML += textToType.charAt(typeIndex);
-                typeIndex++;
-                setTimeout(typeWriter, 100);
-            }
-        }
+<section class="mb-20">
+<h2 class="text-xl font-bold mb-6 text-white">⚡ Stack</h2>
+<div class="flex flex-wrap gap-3">
+<img class="skill h-9" src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white"/>
+<img class="skill h-9" src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
+<img class="skill h-9" src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
+<img class="skill h-9" src="https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white"/>
+</div>
+</section>
 
-        // 2. 一言获取
-        async function fetchHitokoto() {
-            try {
-                const res = await fetch('https://v1.hitokoto.cn');
-                const data = await res.json();
-                document.getElementById('hitokoto').innerText = `“ ${data.hitokoto} ”`;
-            } catch (err) {
-                document.getElementById('hitokoto').innerText = "Hello, World!";
-            }
-        }
+<h2 class="text-xl font-bold mb-8 text-white">🚀 Projects</h2>
 
-        // 3. 礼花点击特效
-        document.body.addEventListener('click', (e) => {
-            const colors = ['#58a6ff', '#bc8cff', '#00ff00', '#ff00ff', '#ffffff'];
-            for (let i = 0; i < 15; i++) {
-                const p = document.createElement('div');
-                p.className = 'firework';
-                p.style.left = e.clientX + 'px';
-                p.style.top = e.clientY + 'px';
-                p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                document.body.appendChild(p);
-                
-                const angle = Math.random() * Math.PI * 2;
-                const velocity = Math.random() * 100 + 50;
-                
-                const animation = p.animate([
-                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                    { transform: `translate(${Math.cos(angle) * velocity}px, ${Math.sin(angle) * velocity}px) scale(0)`, opacity: 0 }
-                ], { duration: 1000, easing: 'cubic-bezier(0.1, 1, 0.3, 1)' });
+<div class="grid md:grid-cols-3 gap-6">
+<a href="https://github.com/shanlinbawang/sublink-worker" target="_blank" class="glass p-6 block">
+<h3 class="text-blue-400 font-bold mb-2">SUBLINK</h3>
+<p class="text-sm text-gray-400">CF Worker 订阅转换工具</p>
+</a>
 
-                animation.onfinish = () => p.remove();
-            }
-        });
+<a href="https://github.com/shanlinbawang/MoonTV" target="_blank" class="glass p-6 block">
+<h3 class="text-purple-400 font-bold mb-2">MOON TV</h3>
+<p class="text-sm text-gray-400">开源电视直播方案</p>
+</a>
 
-        // 4. 背景初始化
-        window.addEventListener('DOMContentLoaded', () => {
-            typeWriter();
-            fetchHitokoto();
-            
-            VANTA.BIRDS({
-                el: "body",
-                mouseControls: true,
-                touchControls: true,
-                gyroControls: false,
-                minHeight: 200.00,
-                minWidth: 200.00,
-                scale: 1.00,
-                scaleMobile: 1.00,
-                backgroundColor: 0x0d1117,
-                color1: 0x58a6ff,
-                color2: 0xbc8cff,
-                birdSize: 1.20,
-                speedLimit: 4.00,
-                quantity: 4.00
-            });
-        });
-    </script>
+<div class="glass p-6 flex items-center justify-center text-gray-500">
+More Coming Soon
+</div>
+</div>
+
+<footer class="mt-24 text-center text-xs text-gray-600">
+© 2026 ShanlinBawang · GitHub Pages
+</footer>
+
+</div>
+
+<script>
+/* 鼠标光标 */
+const glow=document.querySelector('.cursor-glow');
+document.addEventListener('mousemove',e=>{
+    glow.style.left=e.clientX+'px';
+    glow.style.top=e.clientY+'px';
+});
+
+/* 点击粒子 */
+document.addEventListener('click',e=>{
+    for(let i=0;i<18;i++){
+        const p=document.createElement('div');
+        p.className='particle';
+        p.style.left=e.clientX+'px';
+        p.style.top=e.clientY+'px';
+        p.style.background=`hsl(${Math.random()*360},100%,70%)`;
+        document.body.appendChild(p);
+
+        const a=Math.random()*Math.PI*2;
+        const d=Math.random()*120+40;
+
+        p.animate([
+            {transform:'translate(0,0)',opacity:1},
+            {transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`,opacity:0}
+        ],{duration:900,easing:'cubic-bezier(.1,1,.3,1)'}).onfinish=()=>p.remove();
+    }
+});
+
+/* 一言 */
+fetch('https://v1.hitokoto.cn')
+.then(r=>r.json())
+.then(d=>hitokoto.innerText=`“ ${d.hitokoto} ”`)
+.catch(()=>hitokoto.innerText='Hello, World');
+
+/* VANTA */
+let vanta;
+window.addEventListener('DOMContentLoaded',()=>{
+    vanta=VANTA.BIRDS({
+        el:'body',
+        backgroundColor:0x0d1117,
+        color1:0x58a6ff,
+        color2:0xbc8cff,
+        birdSize:1.2,
+        quantity:4
+    });
+});
+window.addEventListener('beforeunload',()=>vanta&&vanta.destroy());
+
+/* 彩蛋 */
+let clicks=0;
+document.querySelector('h1').onclick=()=>{
+    if(++clicks===5){
+        alert('👾 Welcome, Hacker.');
+        clicks=0;
+    }
+};
+</script>
+
 </body>
 </html>
